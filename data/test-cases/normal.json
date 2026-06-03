@@ -1,0 +1,62 @@
+[
+  {
+    "id": "normal-01",
+    "prompt": "Build a CRM with login, contacts, dashboard, role-based access",
+    "category": "normal",
+    "expectedFeatures": ["login", "contacts", "dashboard", "role-based access"]
+  },
+  {
+    "id": "normal-02",
+    "prompt": "Create a project management tool with tasks, teams, Kanban board, and deadlines",
+    "category": "normal",
+    "expectedFeatures": ["tasks", "teams", "kanban", "deadlines"]
+  },
+  {
+    "id": "normal-03",
+    "prompt": "Build an e-commerce store with products, cart, checkout, and order tracking",
+    "category": "normal",
+    "expectedFeatures": ["products", "cart", "checkout", "orders"]
+  },
+  {
+    "id": "normal-04",
+    "prompt": "Create a blog platform with posts, comments, categories, and author profiles",
+    "category": "normal",
+    "expectedFeatures": ["posts", "comments", "categories", "authors"]
+  },
+  {
+    "id": "normal-05",
+    "prompt": "Build an HR management system with employees, departments, leave requests, and payroll",
+    "category": "normal",
+    "expectedFeatures": ["employees", "departments", "leave", "payroll"]
+  },
+  {
+    "id": "normal-06",
+    "prompt": "Create a restaurant management app with menu items, orders, tables, and reservations",
+    "category": "normal",
+    "expectedFeatures": ["menu", "orders", "tables", "reservations"]
+  },
+  {
+    "id": "normal-07",
+    "prompt": "Build a learning management system with courses, students, quizzes, and certificates",
+    "category": "normal",
+    "expectedFeatures": ["courses", "students", "quizzes", "certificates"]
+  },
+  {
+    "id": "normal-08",
+    "prompt": "Create an inventory management system with products, warehouses, stock levels, and suppliers",
+    "category": "normal",
+    "expectedFeatures": ["products", "warehouses", "stock", "suppliers"]
+  },
+  {
+    "id": "normal-09",
+    "prompt": "Build a helpdesk ticketing system with tickets, agents, priorities, and SLA tracking",
+    "category": "normal",
+    "expectedFeatures": ["tickets", "agents", "priorities", "SLA"]
+  },
+  {
+    "id": "normal-10",
+    "prompt": "Create a real estate listing platform with properties, agents, inquiries, and virtual tours",
+    "category": "normal",
+    "expectedFeatures": ["properties", "agents", "inquiries", "tours"]
+  }
+]
