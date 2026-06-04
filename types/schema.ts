@@ -106,6 +106,8 @@ export interface IntentResult {
   auth_required: boolean;
   ambiguities: string[];
   conflicts: string[];
+  is_vague: boolean;
+  clarification_questions: string[];
 }
 
 export interface ArchitectureResult {
@@ -147,12 +149,18 @@ export interface SSEEvent {
 export interface PipelineMetrics {
   promptId: string;
   prompt: string;
+  promptType?: "normal" | "vague" | "conflicting";
   success: boolean;
   retries: number;
   latencyMs: number;
   errors: string[];
   timestamp: string;
   stageTimings?: Record<string, number>;
+  validationStats?: {
+    passedChecks: number;
+    issuesFound: number;
+    autoRepaired: number;
+  };
 }
 
 // Clarification types

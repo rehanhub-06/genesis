@@ -1,0 +1,62 @@
+[
+  {
+    "id": "edge-01",
+    "prompt": "app",
+    "category": "vague",
+    "expectedBehavior": "Should trigger clarification — too vague, no features specified"
+  },
+  {
+    "id": "edge-02",
+    "prompt": "",
+    "category": "empty",
+    "expectedBehavior": "Should trigger clarification — empty prompt"
+  },
+  {
+    "id": "edge-03",
+    "prompt": "Build something cool",
+    "category": "vague",
+    "expectedBehavior": "Should trigger clarification — no concrete entities or features"
+  },
+  {
+    "id": "edge-04",
+    "prompt": "Create a social media app with no login but also require admin authentication and role-based permissions",
+    "category": "conflicting",
+    "expectedBehavior": "Should detect conflicting auth requirements and resolve gracefully"
+  },
+  {
+    "id": "edge-05",
+    "prompt": "Build an app with users who are both admins and regular users simultaneously, where admins cannot see admin pages",
+    "category": "conflicting",
+    "expectedBehavior": "Should detect role conflict and produce a sensible resolution"
+  },
+  {
+    "id": "edge-06",
+    "prompt": "Make me a todo list",
+    "category": "minimal",
+    "expectedBehavior": "Should generate a simple but complete app with reasonable defaults and assumptions"
+  },
+  {
+    "id": "edge-07",
+    "prompt": "I need a system that handles everything — users, products, orders, inventory, shipping, returns, analytics, reporting, CRM, helpdesk, HR, payroll, and project management all in one",
+    "category": "overloaded",
+    "expectedBehavior": "Should handle large scope without crashing, may simplify or chunk features"
+  },
+  {
+    "id": "edge-08",
+    "prompt": "Build a ¿¡™£¢∞§¶ app with <script>alert('xss')</script> and DROP TABLE users;",
+    "category": "malicious",
+    "expectedBehavior": "Should sanitize input and produce valid output without injection"
+  },
+  {
+    "id": "edge-09",
+    "prompt": "Create a platform where students can enroll in courses but there are no courses, and teachers grade assignments that don't exist",
+    "category": "contradictory",
+    "expectedBehavior": "Should detect logical contradictions and add missing entities"
+  },
+  {
+    "id": "edge-10",
+    "prompt": "Build exactly what I'm thinking of right now",
+    "category": "impossible",
+    "expectedBehavior": "Should trigger clarification — completely ambiguous with zero extractable intent"
+  }
+]
