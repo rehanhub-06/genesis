@@ -233,7 +233,7 @@ export async function runPipelineSSE(
 
     let remainingErrorsCount = 0;
     let autoRepairedCount = 0;
-    const baseChecksCount = 18; // As requested in the mock
+    const baseChecksCount = 18;
 
     if (validationErrors.length > 0) {
       onEvent(formatSSE({

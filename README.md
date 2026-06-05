@@ -40,7 +40,7 @@ graph TD
     I --> J{Validation Issues Found?}
     J -- Yes --> K[Stage 4.5: Auto-Repair Engine]
     K --> L[Generate Diff & Update Schema]
-    J -- No --> M[Production Ready JSON & Live Preview]
+    J -- No --> M[Production Ready JSON, Live Preview, & Assumptions]
     L --> M
 ```
 
@@ -61,6 +61,10 @@ graph TD
 ### 3. Interactive Intent Clarification & Resume
 * If a prompt is detected as highly vague or conflicting, Genesis halts execution and prompts the user with tailored clarification questions.
 * Once the user inputs clarification answers, the pipeline resumes dynamically from Stage 1 without resetting the current visual progress.
+
+### 4. Transparent AI Assumptions Auditing
+* To bridge requirements gaps in brief prompts, the generation engine makes logical assumptions (e.g. default columns, page requirements) and documents them in the schema's `assumptions` array (`{ field, assumed, reason }`).
+* Users can view these decisions at any time via the **Assumptions** button in the navbar. A glassmorphic popup displays what was assumed and why, ensuring that the AI's architecture design is transparent and auditable.
 
 ---
 
