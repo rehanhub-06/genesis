@@ -31,7 +31,8 @@ Rules:
  */
 export async function extractIntentStream(
   userPrompt: string,
-  onChunk: (text: string) => void
+  onChunk: (text: string) => void,
+  apiKey?: string
 ): Promise<string> {
   return await callGeminiStream(
     {
@@ -39,6 +40,7 @@ export async function extractIntentStream(
       user: `Extract intent from this app description:\n\n"${userPrompt}"`,
       temperature: 0.1,
       jsonMode: true,
+      apiKey,
     },
     onChunk
   );

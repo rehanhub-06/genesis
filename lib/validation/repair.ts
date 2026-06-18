@@ -205,7 +205,8 @@ export interface RepairResult {
  */
 export async function repairSchema(
   schema: AppSchema,
-  onChunk?: (text: string) => void
+  onChunk?: (text: string) => void,
+  apiKey?: string
 ): Promise<RepairResult> {
   const log: string[] = [];
   let currentSchema = schema;
@@ -261,7 +262,8 @@ export async function repairSchema(
             suggestion: e.suggestion,
           })),
         },
-        onChunk ?? (() => {})
+        onChunk ?? (() => {}),
+        apiKey
       );
 
       currentSchema = parseRefinedSchema(refinedRaw);

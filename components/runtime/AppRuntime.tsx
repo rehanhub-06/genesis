@@ -120,11 +120,11 @@ export default function AppRuntime({ schema }: AppRuntimeProps) {
   }
 
   return (
-    <div className="flex h-full rounded-xl overflow-hidden border border-white/[0.06] bg-slate-950/50">
+    <div className="flex flex-col md:flex-row h-full rounded-xl overflow-hidden border border-white/[0.06] bg-slate-950/50">
       {/* Sidebar Navigation */}
-      <aside className="w-48 flex-shrink-0 border-r border-white/[0.06] bg-white/[0.02] flex flex-col">
-        {/* App name */}
-        <div className="px-4 py-4 border-b border-white/[0.06]">
+      <aside className="w-full md:w-48 flex-shrink-0 border-b md:border-b-0 md:border-r border-white/[0.06] bg-white/[0.02] flex flex-row md:flex-col">
+        {/* App name - hidden on mobile */}
+        <div className="px-4 py-4 border-r md:border-r-0 md:border-b border-white/[0.06] hidden md:block">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
               <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,15 +137,15 @@ export default function AppRuntime({ schema }: AppRuntimeProps) {
           </div>
         </div>
 
-        {/* Page list */}
-        <nav className="flex-1 py-2 px-2 space-y-0.5 overflow-y-auto">
+        {/* Page list - scrollable horizontally on mobile, vertically on desktop */}
+        <nav className="flex-1 py-2 px-2 flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible md:overflow-y-auto scrollbar-none">
           {pages.map((page, i) => {
             const isActive = i === activePageIndex;
             return (
               <button
                 key={page.id}
                 onClick={() => setActivePageIndex(i)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 text-left ${isActive
+                className={`flex-shrink-0 flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 text-left ${isActive
                     ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
                     : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
                   }`}
@@ -157,8 +157,8 @@ export default function AppRuntime({ schema }: AppRuntimeProps) {
           })}
         </nav>
 
-        {/* Bottom */}
-        <div className="px-3 py-3 border-t border-white/[0.06]">
+        {/* Bottom - hidden on mobile */}
+        <div className="px-3 py-3 border-l md:border-l-0 md:border-t border-white/[0.06] hidden md:block">
           <div className="flex items-center gap-2 text-[10px] text-slate-600">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span>v{schema.pipeline_version}</span>
@@ -167,7 +167,7 @@ export default function AppRuntime({ schema }: AppRuntimeProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-6 overflow-y-auto">
         {activePage ? (
           <PageRenderer
             page={activePage}

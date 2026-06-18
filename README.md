@@ -1,8 +1,10 @@
 # Genesis — AI App Generator Studio
 
-Genesis is a premium, AI-driven application generator studio built on **Next.js** and powered by the **Google Gemini API**. It processes natural language app descriptions through an advanced 4-stage streaming pipeline to produce a production-ready application schema.
+Modern AI tools have made code generation increasingly accessible. However, one challenge remains largely unsolved: reliably translating high-level requirements into a consistent, implementation-ready application specification.
 
-It features intent analysis, automated system design, structured validation, and a self-healing schema repair loop.
+Genesis was built to address that problem. 
+
+Rather than focusing on direct code generation, Genesis is a multi-stage AI pipeline that focuses on generating **reliable application specifications**—a foundational schema layer that can power future application generation platforms, development workflows, and AI-assisted software design systems. Built on **Next.js** and powered by the **Google Gemini API**, it converts natural language descriptions into structured JSON application schemas through a series of reasoning, validation, and self-healing recovery stages.
 
 ---
 
@@ -103,6 +105,8 @@ Create a `.env.local` file in the root of the project:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
+
+*Note: The server-side environment variable is optional. Users can securely paste and save their own Gemini API Key directly inside the top navbar of the Studio interface. This key is saved in the browser's `localStorage` and sent dynamically for streaming calculations.*
 
 ### 3. Install Dependencies
 ```bash

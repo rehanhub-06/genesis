@@ -37,7 +37,8 @@ export interface RefinementInput {
  */
 export async function refineSchemaStream(
   input: RefinementInput,
-  onChunk: (text: string) => void
+  onChunk: (text: string) => void,
+  apiKey?: string
 ): Promise<string> {
   return await callGeminiStream(
     {
@@ -53,6 +54,7 @@ ${JSON.stringify(input.errors, null, 2)}
 Return the COMPLETE corrected schema as a single JSON object.`,
       temperature: 0.1,
       jsonMode: true,
+      apiKey,
     },
     onChunk
   );

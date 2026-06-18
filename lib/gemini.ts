@@ -7,6 +7,7 @@ export interface StreamOptions {
   temperature?: number;
   responseSchema?: Record<string, unknown>;
   jsonMode?: boolean;
+  apiKey?: string;
 }
 
 /**
@@ -14,15 +15,15 @@ export interface StreamOptions {
  * text fragment received. Returns the fully concatenated response text.
  */
 export async function callGeminiStream(
-  { system, user, temperature = 0.1, responseSchema, jsonMode }: StreamOptions,
+  { system, user, temperature = 0.1, responseSchema, jsonMode, apiKey }: StreamOptions,
   onChunk: (chunk: string) => void
 ): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('Missing GEMINI_API_KEY environment variable.');
+  const activeKey = apiKey || process.env.GEMINI_API_KEY;
+  if (!activeKey) {
+    throw new Error('Missing Gemini API Key. Please enter your API key in the UI settings or set GEMINI_API_KEY on the server.');
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: activeKey });
 
   // Build generation config
   const config: Record<string, unknown> = {

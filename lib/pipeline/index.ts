@@ -46,7 +46,7 @@ export interface PipelineCallbacks {
  */
 export async function runPipelineSSE(
   prompt: string,
-  { onEvent }: PipelineCallbacks
+  { onEvent, apiKey }: PipelineCallbacks & { apiKey?: string }
 ): Promise<AppSchema | null> {
   const promptId = generatePromptId();
   const timer = startMetricsTimer(promptId, prompt);
@@ -69,7 +69,7 @@ export async function runPipelineSSE(
           event: 'chunk',
           data: { stage: 1, text: chunk },
         }));
-      });
+      }, apiKey);
     } catch (err) {
       const msg = `Stage 1 (Intent) failed: ${err instanceof Error ? err.message : String(err)}`;
       errors.push(msg);
@@ -128,7 +128,7 @@ export async function runPipelineSSE(
           event: 'chunk',
           data: { stage: 2, text: chunk },
         }));
-      });
+      }, apiKey);
     } catch (err) {
       const msg = `Stage 2 (Design) failed: ${err instanceof Error ? err.message : String(err)}`;
       errors.push(msg);
@@ -164,7 +164,7 @@ export async function runPipelineSSE(
           event: 'chunk',
           data: { stage: 3, text: chunk },
         }));
-      });
+      }, apiKey);
     } catch (err) {
       const msg = `Stage 3 (Schema) failed: ${err instanceof Error ? err.message : String(err)}`;
       errors.push(msg);
@@ -206,7 +206,7 @@ export async function runPipelineSSE(
               event: 'chunk',
               data: { stage: 3, text: chunk },
             }));
-          });
+          }, apiKey);
         } catch (repairErr) {
           const msg = `Stage 3.5 (Targeted Repair) failed: ${repairErr instanceof Error ? repairErr.message : String(repairErr)}`;
           errors.push(msg);
@@ -254,7 +254,7 @@ export async function runPipelineSSE(
           event: 'chunk',
           data: { stage: 4, text: chunk },
         }));
-      });
+      }, apiKey);
 
       appSchema = repairResult.schema;
       remainingErrorsCount = repairResult.remainingErrors.length;

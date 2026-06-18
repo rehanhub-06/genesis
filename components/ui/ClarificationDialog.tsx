@@ -7,12 +7,14 @@ interface ClarificationDialogProps {
   clarification: ClarificationResult;
   onSubmit: (answers: Record<string, string>) => void;
   onDismiss: () => void;
+  originalPrompt?: string;
 }
 
 export default function ClarificationDialog({
   clarification,
   onSubmit,
   onDismiss,
+  originalPrompt = "",
 }: ClarificationDialogProps) {
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {};
@@ -42,7 +44,7 @@ export default function ClarificationDialog({
         <div className="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
 
         {/* Header */}
-        <div className="px-6 pt-5 pb-4">
+        <div className="px-6 pt-5 pb-4 border-b border-white/[0.04]">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-amber-500/10 rounded-xl flex-shrink-0">
               <svg
@@ -70,8 +72,16 @@ export default function ClarificationDialog({
           </div>
         </div>
 
+        {/* User Input Section */}
+        {originalPrompt && (
+          <div className="px-6 py-3.5 bg-white/[0.02] border-b border-white/[0.04] text-xs">
+            <span className="font-bold text-yellow-500/90 uppercase tracking-widest block mb-1">Your App Prompt:</span>
+            <p className="text-slate-300 italic">"{originalPrompt}"</p>
+          </div>
+        )}
+
         {/* Questions */}
-        <div className="px-6 pb-4 space-y-4 max-h-[50vh] overflow-y-auto">
+        <div className="px-6 pb-4 pt-4 space-y-4 max-h-[50vh] overflow-y-auto">
           {clarification.questions.map((question, i) => (
             <div key={i}>
               <label className="block text-sm font-medium text-slate-300 mb-1.5">

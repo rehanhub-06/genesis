@@ -75,6 +75,13 @@ export function usePipelineStream(options?: UsePipelineStreamOptions) {
 
   const startPipeline = useCallback(
     (prompt: string, isResuming = false) => {
+      const savedKey = typeof window !== "undefined" ? localStorage.getItem("genesis_api_key") : null;
+      if (!savedKey || savedKey.trim().length === 0) {
+        setError("Missing Gemini API Key. Please enter your Gemini API Key in the top navigation bar of the studio page to continue.");
+        setIsRunning(false);
+        return;
+      }
+
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
@@ -174,6 +181,11 @@ export function usePipelineStream(options?: UsePipelineStreamOptions) {
         try {
           const data = JSON.parse(e.data);
           setClarification(data as ClarificationResult);
+          // Clean up raw streamed questions from the first stage card
+          updateStage(1, {
+            status: "pending",
+            text: "Clarification required from user."
+          });
         } catch {
           // skip
         }
@@ -186,7 +198,7 @@ export function usePipelineStream(options?: UsePipelineStreamOptions) {
 
   const retryStage = useCallback(() => {
     if (currentPromptRef.current && !isRunning) {
-      startPipeline(currentPromptRef.current);
+      startPipeline(currentPromptRef.current, false);
     }
   }, [isRunning, startPipeline]);
 

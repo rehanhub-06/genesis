@@ -40,7 +40,8 @@ The output MUST conform exactly to the AppSchema Zod schema. Return ONLY the JSO
 export async function generateSchemaStream(
   intent: IntentResult,
   architecture: ArchitectureResult,
-  onChunk: (text: string) => void
+  onChunk: (text: string) => void,
+  apiKey?: string
 ): Promise<string> {
   // Convert Zod schema to a JSON Schema-like object for Gemini's responseSchema
   // We use jsonMode instead since the Zod-to-JSON-schema conversion adds complexity
@@ -59,6 +60,7 @@ ${JSON.stringify(architecture, null, 2)}
 Return a single JSON object conforming to the AppSchema specification. Set generated_at to "${new Date().toISOString()}" and pipeline_version to "1.0.0".`,
       temperature: 0.1,
       jsonMode: true,
+      apiKey,
     },
     onChunk
   );
@@ -80,7 +82,8 @@ export function parseAndValidateSchema(raw: string) {
 export async function repairZodErrorsStream(
   faultyJson: string,
   errorDetails: string,
-  onChunk: (text: string) => void
+  onChunk: (text: string) => void,
+  apiKey?: string
 ): Promise<string> {
   const REPAIR_PROMPT = `You are an expert JSON repair agent.
 The following JSON failed validation against the required schema.
@@ -98,6 +101,7 @@ Return ONLY the corrected JSON object, no markdown fences or explanations.`;
       user: `FAULTY JSON:\n${faultyJson}`,
       temperature: 0.1,
       jsonMode: true,
+      apiKey,
     },
     onChunk
   );

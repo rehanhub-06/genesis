@@ -9,8 +9,9 @@ import ModifyRequirement from "@/components/ui/ModifyRequirement";
 import PipelineContainer from "@/components/ui/PipelineContainer";
 import RuntimeContainer from "@/components/ui/RuntimeContainer";
 import MetricsDashboard from "@/components/ui/MetricsDashboard";
-import ClarificationDialog from "@/components/ui/ClarificationDialog";
+import InlineClarification from "@/components/ui/InlineClarification";
 import SplashScreen from "@/components/ui/SplashScreen";
+import ErrorDialog from "@/components/ui/ErrorDialog";
 
 import { usePipelineStream } from "@/hooks/usePipelineStream";
 import { usePromptHistory } from "@/hooks/usePromptHistory";
@@ -18,6 +19,7 @@ import { usePromptHistory } from "@/hooks/usePromptHistory";
 export default function HomePage() {
   const [splashDismissed, setSplashDismissed] = useState(false);
   const [showAssumptions, setShowAssumptions] = useState(false);
+  const [apiKey, setApiKey] = useState("");
 
   const {
     stages,
@@ -38,11 +40,27 @@ export default function HomePage() {
   const [metrics, setMetrics] = useState<PipelineMetrics[]>([]);
   const [currentPrompt, setCurrentPrompt] = useState("");
 
+  // Load API Key from localStorage on mount and sync cookie
+  React.useEffect(() => {
+    const saved = localStorage.getItem("genesis_api_key");
+    if (saved) {
+      setApiKey(saved);
+      document.cookie = `genesis_user_api_key=${encodeURIComponent(saved)}; path=/; max-age=31536000; SameSite=Strict`;
+    }
+  }, []);
+
+  const handleApiKeyChange = useCallback((val: string) => {
+    setApiKey(val);
+    localStorage.setItem("genesis_api_key", val);
+    // Set a strict cookie for secure server-side header transfer
+    document.cookie = `genesis_user_api_key=${encodeURIComponent(val)}; path=/; max-age=31536000; SameSite=Strict`;
+  }, []);
+
   const handleGenerate = useCallback(
     (prompt: string) => {
       setCurrentPrompt(prompt);
       addPrompt(prompt);
-      startPipeline(prompt);
+      startPipeline(prompt, false);
       setShowAssumptions(false); // Reset assumptions state on new run
     },
     [addPrompt, startPipeline]
@@ -87,7 +105,7 @@ export default function HomePage() {
       <SplashScreen onDismiss={() => setSplashDismissed(true)} />
 
       {splashDismissed && (
-        <div className="flex flex-col h-screen overflow-hidden bg-[#09090b] text-yellow-50">
+        <div className="flex flex-col h-auto lg:h-screen lg:overflow-hidden bg-[#09090b] text-yellow-50 min-h-screen">
           {/* Background Ambient Glow */}
           <div className="fixed inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-yellow-500/[0.03] rounded-full blur-[120px]" />
@@ -101,7 +119,7 @@ export default function HomePage() {
           />
 
           {/* Top Navbar */}
-          <header className="relative z-20 flex items-center justify-between px-6 py-4 border-b border-yellow-500/10 bg-[#09090b]/80 backdrop-blur-md">
+          <header className="relative z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-4 md:px-6 border-b border-yellow-500/10 bg-[#09090b]/80 backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-[0_0_15px_rgba(250,204,21,0.3)]">
                 <svg className="w-5 h-5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +131,20 @@ export default function HomePage() {
               </h1>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
+              <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 shadow-inner w-full sm:w-auto">
+                <svg className="w-3.5 h-3.5 text-yellow-500/80 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m-5 8a2 2 0 01-2-2V7a5 5 0 1110 0v10a2 2 0 01-2 2h-4z" />
+                </svg>
+                <input
+                  type="password"
+                  placeholder="Gemini API Key (Required)"
+                  value={apiKey}
+                  onChange={(e) => handleApiKeyChange(e.target.value)}
+                  className="bg-transparent border-none outline-none text-[11px] text-slate-200 placeholder-slate-500 w-full sm:w-36 sm:focus:w-48 transition-all duration-300"
+                />
+              </div>
+
               {schema?.assumptions && schema.assumptions.length > 0 && (
                 <button
                   onClick={() => setShowAssumptions(!showAssumptions)}
@@ -142,10 +173,10 @@ export default function HomePage() {
 
           {/* Main 25/75 Grid Layout */}
           <main className="relative z-10 flex-1 min-h-0 p-4">
-            <div className="h-full grid grid-cols-4 gap-4">
+            <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-4">
               
               {/* Left Column: 25% (Pipeline + Prompt) */}
-              <div className="col-span-1 flex flex-col gap-4 min-h-0">
+              <div className="col-span-1 flex flex-col gap-4 min-h-[500px] lg:h-full lg:min-h-0">
                 <div className="flex-1 bg-zinc-900/50 backdrop-blur-md border border-yellow-500/10 rounded-2xl p-4 overflow-hidden shadow-2xl flex flex-col relative">
                   <PipelineContainer
                     stages={stages}
@@ -156,6 +187,15 @@ export default function HomePage() {
                 </div>
                 
                 <div className="flex-shrink-0 bg-zinc-900/50 backdrop-blur-md border border-yellow-500/10 rounded-2xl p-4 shadow-2xl">
+                  {clarification && clarification.questions && clarification.questions.length > 0 && (
+                    <InlineClarification
+                      clarification={clarification}
+                      onSubmit={handleClarificationSubmit}
+                      onDismiss={handleReset}
+                      originalPrompt={currentPrompt}
+                    />
+                  )}
+
                   <PromptInput onSubmit={handleGenerate} isRunning={isRunning} />
                   {schema && (
                     <div className="mt-3">
@@ -169,7 +209,7 @@ export default function HomePage() {
               </div>
 
               {/* Right Column: 75% (Runtime + Metrics) */}
-              <div className="col-span-3 flex flex-col gap-4 min-h-0">
+              <div className="col-span-1 lg:col-span-3 flex flex-col gap-4 min-h-[600px] lg:h-full lg:min-h-0">
                 <div className="flex-1 bg-zinc-900/50 backdrop-blur-md border border-yellow-500/10 rounded-2xl p-4 overflow-hidden shadow-2xl">
                   {/* If running and no schema, show the 3D antigravity loader */}
                   {isRunning && !schema ? (
@@ -182,7 +222,7 @@ export default function HomePage() {
                   )}
                 </div>
                 
-                <div className="flex-shrink-0 h-40 bg-zinc-900/50 backdrop-blur-md border border-yellow-500/10 rounded-2xl p-4 shadow-2xl">
+                <div className="flex-shrink-0 bg-zinc-900/50 backdrop-blur-md border border-yellow-500/10 rounded-2xl p-4 shadow-2xl h-auto lg:h-40 min-h-[160px]">
                   <MetricsDashboard metrics={metrics} />
                 </div>
               </div>
@@ -190,12 +230,14 @@ export default function HomePage() {
             </div>
           </main>
 
-          {/* Clarification Modal */}
-          {clarification && clarification.isTooVague && (
-            <ClarificationDialog
-              clarification={clarification}
-              onSubmit={handleClarificationSubmit}
+
+
+          {/* Human Readable Error Popup */}
+          {error && (
+            <ErrorDialog
+              error={error}
               onDismiss={handleReset}
+              onRetry={retryStage}
             />
           )}
 

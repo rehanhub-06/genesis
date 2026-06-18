@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 /**
  * Creates an SSE streaming response for a given prompt.
  */
-function createSSEStream(prompt: string): Response {
+function createSSEStream(prompt: string, apiKey?: string): Response {
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
@@ -22,6 +22,7 @@ function createSSEStream(prompt: string): Response {
               // Stream may have been closed by the client
             }
           },
+          apiKey,
         });
       } catch (err) {
         const errorEvent = `event: error\ndata: ${JSON.stringify({
@@ -54,11 +55,13 @@ function createSSEStream(prompt: string): Response {
 }
 
 /**
- * GET /api/generate?prompt=...
+ * GET /api/generate?prompt=...&apiKey=...
  * Used by EventSource on the client side.
  */
 export async function GET(req: NextRequest) {
   const prompt = req.nextUrl.searchParams.get('prompt');
+  const cookieKey = req.cookies.get('genesis_user_api_key')?.value;
+  const apiKey = cookieKey || req.nextUrl.searchParams.get('apiKey') || undefined;
 
   if (!prompt || prompt.trim().length === 0) {
     return new Response(
@@ -67,24 +70,26 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!apiKey || apiKey.trim().length === 0) {
     return new Response(
-      JSON.stringify({ error: 'Server misconfiguration: GEMINI_API_KEY is not set.' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'Missing Gemini API Key. Please enter your Gemini API Key in the top navigation bar of the studio page to continue.' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  return createSSEStream(prompt);
+  return createSSEStream(prompt, apiKey);
 }
 
 /**
  * POST /api/generate
- * Accepts: { prompt: string }
+ * Accepts: { prompt: string, apiKey?: string }
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const prompt = body?.prompt;
+    const cookieKey = req.cookies.get('genesis_user_api_key')?.value;
+    const apiKey = cookieKey || body?.apiKey || undefined;
 
     if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
       return new Response(
@@ -93,14 +98,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!apiKey || apiKey.trim().length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Server misconfiguration: GEMINI_API_KEY is not set.' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Missing Gemini API Key. Please enter your Gemini API Key in the top navigation bar of the studio page to continue.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    return createSSEStream(prompt);
+    return createSSEStream(prompt, apiKey);
   } catch (err) {
     return new Response(
       JSON.stringify({

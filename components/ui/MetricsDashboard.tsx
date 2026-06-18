@@ -59,7 +59,7 @@ export default function MetricsDashboard({ metrics }: MetricsDashboardProps) {
         <h2 className="text-xs font-semibold text-yellow-100">Telemetry</h2>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 h-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
         {/* Left: Validation Results */}
         <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-3 flex flex-col justify-center">
           <h3 className="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Validation Results</h3>

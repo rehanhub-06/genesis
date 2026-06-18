@@ -47,7 +47,8 @@ Rules:
  */
 export async function generateDesignStream(
   intent: IntentResult,
-  onChunk: (text: string) => void
+  onChunk: (text: string) => void,
+  apiKey?: string
 ): Promise<string> {
   return await callGeminiStream(
     {
@@ -55,6 +56,7 @@ export async function generateDesignStream(
       user: `Design a system architecture for this extracted intent:\n\n${JSON.stringify(intent, null, 2)}`,
       temperature: 0.1,
       jsonMode: true,
+      apiKey,
     },
     onChunk
   );
