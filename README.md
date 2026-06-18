@@ -31,8 +31,8 @@ Below is the workflow showing the multi-stage streaming process, the self-healin
 graph TD
     A[User Input / Prompt] --> B(Stage 1: Intent Analysis)
     B --> C{Is Vague or Conflicting?}
-    C -- Yes --> D[Show Clarification Dialog]
-    D --> |User Answers| B
+    C -- Yes --> D[Render Inline Clarification Card]
+    D --> |User Submits Answers| B
     C -- No --> E(Stage 2: Architecture Design)
     E --> F(Stage 3: Schema Generation)
     F --> G{Zod Validation Passes?}
@@ -50,21 +50,31 @@ graph TD
 
 ## Key Features
 
-### 1. Multi-Stage Streaming Pipeline
-* **Stage 1: Intent Analysis**: Deconstructs user input to identify requirements, core objectives, ambiguities, and potential conflicts.
-* **Stage 2: Architecture Design**: Models the underlying data schema, access controls, roles, and route configurations.
-* **Stage 3: Schema Generation**: Automatically translates architecture designs into structured JSON app configurations.
-* **Stage 4: Validation & Repair**: Runs cross-layer sanity checks and automatically repairs inconsistencies.
+### 1. Mandatory Gemini API Key (User Provided) & Security Architecture
+* To support user-provided credentials securely and protect server quota, **users must input their own Gemini API key** in the top navigation bar.
+* **Security & Sandboxing Controls**:
+  - **Zero Server Retention**: API keys are never stored, logged, or cached on the server. The key remains entirely within the client's local environment.
+  - **Local Storage Isolation**: Keys are persisted locally in the user's browser using `localStorage`, meaning they never leave your device unless communicating with the generation APIs.
+  - **Secure Cookie Transfer**: The key is synchronized to a browser cookie using strict security attributes (`SameSite=Strict`), protecting against Cross-Site Request Forgery (CSRF) and ensuring secure data transit.
+  - **Strict API Rejection**: The server-side generation endpoints (`/api/generate`) strictly validate the presence of the key. If missing, a `400 Bad Request` is thrown immediately, bypassing the generation pipeline.
 
-### 2. Self-Healing Targeted Zod Repair Agent
+### 2. Structured Inline Clarification Workspace
+* If a prompt is detected as highly vague or conflicting, Genesis displays a dedicated, high-contrast **Inline Clarification Card** directly above the main prompt input.
+* The workspace embeds text areas for each clarification question, enabling users to enter their responses side-by-side with the original prompt and click **"Resubmit with Answers"** without any modal popups interrupting their workflow.
+
+### 3. Human-Readable Error Modal & Recovery
+* If any generation stage fails or the connection is lost, Genesis presents a polished, categorised pop-up modal showing exactly what went wrong.
+* It dynamically extracts the actual failure message from the error log and offers clear resolution recommendations, coupled with a fully functional **"Retry Stage"** action to re-initialize execution immediately.
+
+### 4. Fully Responsive Interface
+* The entire Genesis Studio dashboard utilizes dynamic height layouts and responsive column wrapping classes (`grid-cols-1 lg:grid-cols-4`, `flex-col md:flex-row`).
+* Accessible and usable on screens of any size, from desktop setups to mobile viewports, including horizontally scrollable navigation panels and reflowing telemetry charts.
+
+### 5. Self-Healing Targeted Zod Repair Agent
 * If the schema generated in Stage 3 fails Zod schema validations or is malformed JSON, a dedicated **Targeted Zod Repair Agent** takes only the error issues and the broken JSON payload to repair it.
 * Features a built-in retry policy (up to 2 repair attempts) instead of restarting the entire pipeline from scratch, saving time, compute cycles, and API tokens.
 
-### 3. Interactive Intent Clarification & Resume
-* If a prompt is detected as highly vague or conflicting, Genesis halts execution and prompts the user with tailored clarification questions.
-* Once the user inputs clarification answers, the pipeline resumes dynamically from Stage 1 without resetting the current visual progress.
-
-### 4. Transparent AI Assumptions Auditing
+### 6. Transparent AI Assumptions Auditing
 * To bridge requirements gaps in brief prompts, the generation engine makes logical assumptions (e.g. default columns, page requirements) and documents them in the schema's `assumptions` array (`{ field, assumed, reason }`).
 * Users can view these decisions at any time via the **Assumptions** button in the navbar. A glassmorphic popup displays what was assumed and why, ensuring that the AI's architecture design is transparent and auditable.
 
@@ -99,14 +109,8 @@ If any validations fail, Genesis redirects the schema into an **Auto-Repair Engi
 ### 1. Prerequisites
 Ensure you have Node.js (v18+) and npm installed.
 
-### 2. Environment Setup
-Create a `.env.local` file in the root of the project:
-
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-*Note: The server-side environment variable is optional. Users can securely paste and save their own Gemini API Key directly inside the top navbar of the Studio interface. This key is saved in the browser's `localStorage` and sent dynamically for streaming calculations.*
+### 2. Enter API Key in the UI
+Start the application and paste your Gemini API Key in the **Gemini API Key (Required)** input box in the top-right corner of the navbar. This key is securely stored in your browser's local cache (`SameSite=Strict` cookie protection) and is required to run any prompt generations.
 
 ### 3. Install Dependencies
 ```bash
@@ -131,7 +135,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to start gen
 │   └── page.tsx          # Genesis Studio home page layout
 ├── components/           # React Components
 │   ├── runtime/          # AppRuntime layout preview renderer
-│   └── ui/               # Prompt history, inputs, metrics, and JSON viewer components
+│   └── ui/               # Prompt inputs, inline clarifications, metrics, and error dialogs
 ├── hooks/                # Custom React Hooks (SSE streams, prompt history)
 ├── lib/                  # Backend pipeline logic
 │   ├── pipeline/         # Intent (S1), Design (S2), Schema (S3), and Repair (S3.5/S4) scripts
